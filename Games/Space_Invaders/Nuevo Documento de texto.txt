@@ -1,0 +1,23 @@
+desarrola todas, quiero todas pero quiero que me digas como ir haciendolo, dime donde pongo, donde quito etc.,...Mejoras de jugabilidad y características
+1. Sistema de puntuaciones altas: Añade una tabla de puntuaciones altas local usando localStorage para que los jugadores puedan competir contra sus mejores marcas.
+2. Jefes finales: Cada cierto número de niveles (por ejemplo, cada 5), introduce un jefe alienígena más grande y resistente con patrones de ataque especiales.
+3. Opciones de dificultad: Permite que los jugadores seleccionen entre fácil, normal y difícil al comenzar el juego.
+4. Más tipos de power-ups:
+   * Bomba que elimina todos los enemigos en pantalla
+   * Ralentizador que disminuye temporalmente la velocidad de los aliens
+   * Disparo láser que atraviesa múltiples enemigos
+Mejoras visuales y sonoras
+1. Efectos de partículas mejorados: Añadir más efectos de partículas cuando los aliens son destruidos o cuando se recoge un power-up.
+2. Música de fondo: Incluir música de fondo con temática espacial, con opción para silenciarla.
+3. Control de volumen: Añadir controles deslizantes para ajustar el volumen de efectos sonoros y música.
+4. Fondo con parallax: Crear capas de estrellas que se muevan a diferentes velocidades para dar sensación de profundidad.
+Mejoras de experiencia de usuario
+1. Pantalla de pausa: Añadir la funcionalidad de pausar el juego con la tecla 'P' o un botón en pantalla.
+2. Tutorial interactivo: Un breve tutorial que enseñe los controles y mecánicas básicas.
+3. Controles táctiles: Añadir soporte para dispositivos móviles con controles en pantalla.
+4. Animación entre niveles: Una transición visual cuando se completa un nivel y se pasa al siguiente.
+5. Menú de opciones: Permite personalizar controles, sonido y dificultad.
+Mejoras técnicas
+1. Optimización para móviles: Adaptar la interfaz para que sea responsiva en dispositivos de diferentes tamaños.
+2. Guardado de progreso: Permitir que los jugadores guarden su progreso para continuar más tarde.
+3. Modo oscuro/claro: Ofrecer diferentes paletas de colores para el juego.

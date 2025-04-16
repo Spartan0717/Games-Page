@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whac-a-Mole</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(45deg, #85FFBD, #FFFB7D);
+            margin: 0;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-title {
+            color: #8B4513;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 48px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .game-container {
+            position: relative;
+            width: 600px;
+            max-width: 100%;
+            height: 400px;
+            margin: 20px auto;
+            background: #8d6e63;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            width: 600px;
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .score, .time, .level {
+            font-size: 24px;
+            color: #8B4513;
+            font-weight: bold;
+        }
+
+        .holes-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 20px;
+            width: 500px;
+            max-width: 90%;
+            height: 300px;
+            margin: 50px auto;
+        }
+
+        .hole {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #3E2723;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: inset 0 10px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .mole {
+            position: absolute;
+            bottom: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 80%;
+            background-color: #A0522D;
+            border-radius: 50% 50% 40% 40%;
+            transition: bottom 0.2s ease-out;
+            box-shadow: inset 0 -10px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mole.active {
+            bottom: 0;
+        }
+
+        .mole .face {
+            position: absolute;
+            top: 20%;
+            left: 0;
+            right: 0;
+            height: 60%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .mole .eyes {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+        }
+
+        .mole .eye {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .mole .eye::after {
+            content: '';
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            width: 50%;
+            height: 50%;
+            background-color: black;
+            border-radius: 50%;
+        }
+
+        .mole .nose {
+            width: 16px;
+            height: 16px;
+            background-color: #FF6B6B;
+            border-radius: 50%;
+        }
+
+        .mole .mouth {
+            width: 30px;
+            height: 10px;
+            background-color: #8B4513;
+            border-radius: 0 0 20px 20px;
+            transition: all 0.2s ease;
+        }
+
+        .mole.hit .face {
+            animation: shake 0.2s ease-in-out;
+        }
+
+        .mole.hit .eye::after {
+            background-color: #FF0000;
+        }
+
+        .mole.hit .mouth {
+            height: 15px;
+            border-radius: 20px 20px 0 0;
+            background-color: #5D4037;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            50% { transform: translateX(3px); }
+            75% { transform: translateX(-3px); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px auto;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #A0522D;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:disabled {
+            background-color: #CCCCCC;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .hammer {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            background-image: radial-gradient(#8B4513, #5D4037);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            display: none;
+        }
+
+        .hammer:before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 50px;
+            background-color: #5D4037;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+        }
+
+        .hammer.active {
+            transform: translate(-50%, -50%) rotate(45deg) scale(0.9);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 48px;
+            z-index: 20;
+            border-radius: 20px;
+        }
+
+        .game-over p {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .final-score {
+            font-size: 36px;
+            color: #FFD700;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bounce {
+            animation: bounce 0.5s;
+        }
+
+        .dirt {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 15%;
+            background-color: #5D4037;
+            border-radius: 0 0 50% 50%;
+        }
+
+        /* Efectos especiales */
+        .splat {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 0, 0, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            animation: fade-out 0.5s forwards;
+        }
+
+        @keyframes fade-out {
+            to { opacity: 0; scale: 1.5; }
+        }
+
+        .score-popup {
+            position: absolute;
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 10;
+            animation: float-up 1s forwards;
+        }
+
+        @keyframes float-up {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+
+        /* Responsive design */
+        @media (max-width: 650px) {
+            .game-container, .scoreboard {
+                width: 100%;
+            }
+            
+            .holes-container {
+                width: 90%;
+                height: 250px;
+                gap: 10px;
+            }
+            
+            .game-title {
+                font-size: 32px;
+            }
+
+            .score, .time, .level {
+                font-size: 18px;
+            }
+
+            .mole .eye {
+                width: 15px;
+                height: 15px;
+            }
+
+            .mole .nose {
+                width: 12px;
+                height: 12px;
+            }
+
+            .mole .mouth {
+                width: 24px;
+                height: 8px;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 16px;
+            }
+        }
+    </style>
+        <style>
+            .home-button {
+position: absolute;
+top: 10px;
+left: 10px;
+width: 50px;  /* Ajusta el tamaño del botón */
+height: 50px;
+z-index: 10;  /* Asegura que esté por encima de otros elementos */
+}
+
+.home-button img {
+width: 100%;
+height: auto;
+border-radius: 50%; /* Hace que el botón tenga bordes redondeados */
+box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+transition: transform 0.2s ease-in-out;
+}
+
+.home-button img:hover {
+transform: scale(1.1); /* Efecto al pasar el mouse */
+}
+
+</style>
+</head>
+<body>
+ <!--Boton de regreso-->
+ <a href="../../index.html" class="home-button">
+    <img src="./play.png" alt="Inicio">
+</a>
+
+    <h1 class="game-title">Whac-a-Mole</h1>
+    
+    <div class="scoreboard">
+        <div class="score">Puntos: <span id="score">0</span></div>
+        <div class="time">Tiempo: <span id="time">30</span>s</div>
+        <div class="level">Nivel: <span id="level">1</span></div>
+    </div>
+    
+    <div class="game-container">
+        <div class="holes-container">
+            <div class="hole" data-index="0">
+                <div class="dirt"></div>
+                <div class="mole">
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="nose"></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hole" data-index="1">
+                <div class="dirt"></div>
+                <div class="mole">
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="nose"></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hole" data-index="2">
+                <div class="dirt"></div>
+                <div class="mole">
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="nose"></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hole" data-index="3">
+                <div class="dirt"></div>
+                <div class="mole">
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="nose"></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hole" data-index="4">
+                <div class="dirt"></div>
+                <div class="mole">
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="nose"></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hole" data-index="5">
+                <div class="dirt"></div>
+                <div class="mole">
+                    <div class="face">
+                        <div class="eyes">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="nose"></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hammer"></div>
+        
+        <div class="game-over">
+            <p>¡Juego Terminado!</p>
+            <p class="final-score">Puntuación: <span id="final-score">0</span></p>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button id="start-btn">Iniciar Juego</button>
+        <button id="reset-btn">Reiniciar</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos del DOM
+            const holes = document.querySelectorAll('.hole');
+            const moles = document.querySelectorAll('.mole');
+            const scoreDisplay = document.getElementById('score');
+            const timeDisplay = document.getElementById('time');
+            const levelDisplay = document.getElementById('level');
+            const startButton = document.getElementById('start-btn');
+            const resetButton = document.getElementById('reset-btn');
+            const gameOverDisplay = document.querySelector('.game-over');
+            const finalScoreDisplay = document.getElementById('final-score');
+            const hammer = document.querySelector('.hammer');
+            const gameContainer = document.querySelector('.game-container');
+            
+            // Variables del juego
+            let score = 0;
+            let gameTime = 30;
+            let level = 1;
+            let currentTime = gameTime;
+            let gameIsRunning = false;
+            let timer;
+            let moleTimers = [];
+            let lastHole = -1;
+            let popupSpeed = 1500;
+            let clickable = true;
+            
+            // Sonidos
+            const hitSound = new Audio();
+            hitSound.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAABAAABVgANTU1NTU1Q0NDQ0NDUFBQUFBQXl5eXl5ea2tra2tra3l5eXl5eYaGhoaGhpOTk5OTk6Gh';
+            
+            const missSound = new Audio();
+            missSound.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAABAAABVgANTU1NTU1Q0NDQ0NDUFBQUFBQXl5eXl5ea2tra2tra3l5eXl5eYaGhoaGhpOTk5OTk6Gh';
+            
+            const gameOverSound = new Audio();
+            gameOverSound.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAABAAABVgANTU1NTU1Q0NDQ0NDUFBQUFBQXl5eXl5ea2tra2tra3l5eXl5eYaGhoaGhpOTk5OTk6Gh';
+            
+            // Función para mostrar un topo aleatorio
+            function randomMole() {
+                // Calcular índice aleatorio
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * holes.length);
+                } while (randomIndex === lastHole);
+                
+                lastHole = randomIndex;
+                return holes[randomIndex];
+            }
+            
+            // Función para que aparezca un topo
+            function popUp() {
+                if (!gameIsRunning) return;
+                
+                // Calcular tiempo basado en el nivel (más rápido en niveles superiores)
+                const minTime = Math.max(200, 1000 - 150 * level);
+                const maxTime = Math.max(800, 1500 - 150 * level);
+                const time = Math.random() * (maxTime - minTime) + minTime;
+                
+                const hole = randomMole();
+                const mole = hole.querySelector('.mole');
+                
+                // Hacer que el topo aparezca
+                mole.classList.add('active');
+                
+                // Configurar temporizador para que el topo desaparezca
+                const moleTimer = setTimeout(() => {
+                    mole.classList.remove('active');
+                    mole.classList.remove('hit');
+                    
+                    if (gameIsRunning) {
+                        // Programar la aparición del siguiente topo
+                        setTimeout(popUp, Math.random() * 600 + 200);
+                    }
+                }, time);
+                
+                // Guardar referencia al temporizador
+                moleTimers.push(moleTimer);
+            }
+            
+            // Función para mostrar efecto de golpe
+            function showSplat(x, y) {
+                const splat = document.createElement('div');
+                splat.classList.add('splat');
+                splat.style.left = `${x - 20}px`;
+                splat.style.top = `${y - 20}px`;
+                gameContainer.appendChild(splat);
+                
+                setTimeout(() => {
+                    gameContainer.removeChild(splat);
+                }, 500);
+            }
+            
+            // Función para mostrar popup de puntos
+            function showScorePopup(x, y, points) {
+                const scorePopup = document.createElement('div');
+                scorePopup.classList.add('score-popup');
+                scorePopup.textContent = `+${points}`;
+                scorePopup.style.left = `${x - 20}px`;
+                scorePopup.style.top = `${y - 30}px`;
+                gameContainer.appendChild(scorePopup);
+                
+                setTimeout(() => {
+                    gameContainer.removeChild(scorePopup);
+                }, 1000);
+            }
+            
+            // Iniciar el juego
+            function startGame() {
+                if (gameIsRunning) return;
+                
+                // Reiniciar variables
+                score = 0;
+                currentTime = gameTime;
+                level = 1;
+                popupSpeed = 1500;
+                gameIsRunning = true;
+                clickable = true;
+                
+                // Actualizar pantalla
+                scoreDisplay.textContent = score;
+                timeDisplay.textContent = currentTime;
+                levelDisplay.textContent = level;
+                
+                gameOverDisplay.style.display = 'none';
+                startButton.disabled = true;
+                
+                // Mostrar martillo al mover el mouse
+                document.addEventListener('mousemove', moveHammer);
+                document.addEventListener('mousedown', activateHammer);
+                document.addEventListener('mouseup', deactivateHammer);
+                hammer.style.display = 'block';
+                
+                // Iniciar el tiempo
+                timer = setInterval(() => {
+                    currentTime--;
+                    timeDisplay.textContent = currentTime;
+                    
+                    if (currentTime <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+                
+                // Empezar a hacer aparecer topos
+                setTimeout(popUp, 1000);
+            }
+            
+            // Terminar el juego
+            function endGame() {
+                clearInterval(timer);
+                
+                // Limpiar todos los temporizadores de topos
+                moleTimers.forEach(timerId => clearTimeout(timerId));
+                moleTimers = [];
+                
+                gameIsRunning = false;
+                
+                // Reproducir sonido de fin de juego
+                gameOverSound.play();
+                
+                // Ocultar todos los topos activos
+                moles.forEach(mole => {
+                    mole.classList.remove('active');
+                    mole.classList.remove('hit');
+                });
+                
+                // Mostrar pantalla de juego terminado
+                gameOverDisplay.style.display = 'flex';
+                finalScoreDisplay.textContent = score;
+                startButton.disabled = false;
+                
+                // Quitar el martillo
+                document.removeEventListener('mousemove', moveHammer);
+                document.removeEventListener('mousedown', activateHammer);
+                document.removeEventListener('mouseup', deactivateHammer);
+                hammer.style.display = 'none';
+            }
+            
+            // Reiniciar el juego
+            function resetGame() {
+                if (gameIsRunning) {
+                    clearInterval(timer);
+                    
+                    // Limpiar todos los temporizadores de topos
+                    moleTimers.forEach(timerId => clearTimeout(timerId));
+                    moleTimers = [];
+                }
+                
+                score = 0;
+                currentTime = gameTime;
+                level = 1;
+                gameIsRunning = false;
+                
+                scoreDisplay.textContent = score;
+                timeDisplay.textContent = currentTime;
+                levelDisplay.textContent = level;
+                
+                gameOverDisplay.style.display = 'none';
+                startButton.disabled = false;
+                
+                // Ocultar todos los topos activos
+                moles.forEach(mole => {
+                    mole.classList.remove('active');
+                    mole.classList.remove('hit');
+                });
+                
+                // Quitar el martillo
+                document.removeEventListener('mousemove', moveHammer);
+                document.removeEventListener('mousedown', activateHammer);
+                document.removeEventListener('mouseup', deactivateHammer);
+                hammer.style.display = 'none';
+            }
+            
+            // Mover el martillo con el cursor
+            function moveHammer(e) {
+                const rect = gameContainer.getBoundingClientRect();
+                
+                // Calcular posición relativa al contenedor
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                hammer.style.left = `${x}px`;
+                hammer.style.top = `${y}px`;
+            }
+            
+            // Activar martillo al hacer clic
+            function activateHammer() {
+                hammer.classList.add('active');
+            }
+            
+            // Desactivar martillo al soltar clic
+            function deactivateHammer() {
+                hammer.classList.remove('active');
+            }
+            
+            // Golpear un topo
+            holes.forEach(hole => {
+                const mole = hole.querySelector('.mole');
+                
+                hole.addEventListener('click', (e) => {
+                    if (!gameIsRunning || !clickable) return;
+                    
+                    // Prevenir múltiples clics rápidos
+                    clickable = false;
+                    setTimeout(() => { clickable = true; }, 100);
+                    
+                    // Obtener posición del clic relativa al contenedor
+                    const rect = gameContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    if (mole.classList.contains('active') && !mole.classList.contains('hit')) {
+                        // Reproducir sonido de golpe
+                        hitSound.currentTime = 0;
+                        hitSound.play();
+                        
+                        // Efectos visuales
+                        mole.classList.add('hit');
+                        showSplat(x, y);
+                        
+                        // Puntos base por nivel
+                        const points = 10 * level;
+                        score += points;
+                        scoreDisplay.textContent = score;
+                        showScorePopup(x, y, points);
+                        
+                        // Subir de nivel cada 50 puntos
+                        if (Math.floor(score / 50) >= level && level < 5) {
+                            level++;
+                            levelDisplay.textContent = level;
+                            
+                            // Ajustar velocidad de aparición según nivel
+                            popupSpeed = Math.max(400, 1500 - 200 * level);
+                        }
+                    } else if (!mole.classList.contains('hit')) {
+                        // Reproducir sonido de fallo
+                        missSound.currentTime = 0;
+                        missSound.play();
+                    }
+                });
+            });
+            
+            // Eventos de botones
+            startButton.addEventListener('click', startGame);
+            resetButton.addEventListener('click', resetGame);
+            
+            // Evitar arrastrar imágenes
+            gameContainer.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+            });
+            
+            // Ajustar al tamaño de la ventana
+            function adjustSize() {
+                const containerWidth = gameContainer.offsetWidth;
+                const holesContainer = document.querySelector('.holes-container');
+                
+                if (containerWidth < 500) {
+                    holesContainer.style.width = '90%';
+                    holesContainer.style.height = '70%';
+                } else {
+                    holesContainer.style.width = '500px';
+                    holesContainer.style.height = '300px';
+                }
+            }
+            
+            // Ajustar tamaño al cargar y al redimensionar
+            window.addEventListener('load', adjustSize);
+            window.addEventListener('resize', adjustSize);
+        });
+    </script>
+</body>
+</html>

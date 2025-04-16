@@ -1,0 +1,266 @@
+<!DOCTYPE html> <!--Define el documento como HTML 5-->
+<html lang="es"> <!--Indica que el contenido está esta en español, esto ayuda a los motores de búsqueda y lectores de pantalla-->
+<head>
+    <meta charset="UTF-8"> <!--UTF-8 define la conexión caráteres, esto permite emplear acentos y caráteres especiales-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--Función que hace responsive al sitio-->
+    <title>Juego del Ahorcado</title> <!--Es el título que aparece en la pestaña del navegador-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"> <!--Importa la hoja de estilos de bootstap-->
+    <link rel="stylesheet" href="styles.css"> <!--Importa la hoja de estilos relacionada-->
+    <!-- Añadimos FontAwesome para iconos en el juego -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+                .home-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 50px;  /* Ajusta el tamaño del botón */
+    height: 50px;
+    z-index: 10;  /* Asegura que esté por encima de otros elementos */
+}
+
+.home-button img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%; /* Hace que el botón tenga bordes redondeados */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease-in-out;
+}
+
+.home-button img:hover {
+    transform: scale(1.1); /* Efecto al pasar el mouse */
+}
+
+    </style>
+</head>
+<body>
+     <!--Boton de regreso-->
+     <a href="../../index.html" class="home-button">
+        <img src="./play.png" alt="Inicio">
+    </a>
+    <!-- Pantalla de carga -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-container">
+            <h2>Cargando Juego</h2>
+            <div class="loaders-container">
+                <div class="loader">
+                    <svg viewBox="0 0 80 80">
+                        <circle id="test" cx="40" cy="40" r="32"></circle>
+                    </svg>
+                </div>
+                
+                <div class="loader triangle">
+                    <svg viewBox="0 0 86 80">
+                        <polygon points="43 8 79 72 7 72"></polygon>
+                    </svg>
+                </div>
+                
+                <div class="loader">
+                    <svg viewBox="0 0 80 80">
+                        <rect x="8" y="8" width="64" height="64"></rect>
+                    </svg>
+                </div>
+            </div>
+            <p class="loading-text mt-3">Preparando palabras...</p>
+        </div>
+        
+        <div class="copyright-footer">
+            &copy; 2025 - Rodrigo Eduardo González Juárez. Todos los derechos reservados.
+            Este juego está protegido por derechos de autor. No se permite la reproducción, distribución, ni modificación de este juego sin el permiso expreso del titular de los derechos de autor.
+        </div>
+    </div>
+
+    <!-- Contenido principal del juego -->
+    <div id="game-content" class="container mt-5 d-none"> <!--<div id="game-content">: Contiene el juego completo.
+        d-none: Oculta el juego hasta que la pantalla de carga desaparezca.-->
+        
+        <div class="hangman-container">
+            <!-- Banner de victorias/puntuación -->
+            <div class="score-banner mb-3"> <!--Muestra los puntos, victorias y derrotas-->
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary">Puntos: <span id="score">0</span></span> <!--Contador de puntos-->
+                    <span class="badge bg-success">Victorias: <span id="wins">0</span></span> <!--Contador de victorias-->
+                    <span class="badge bg-danger">Derrotas: <span id="losses">0</span></span> <!--Contador de derrotas-->
+                </div>
+            </div>
+
+            <div class="text-center mb-4">
+                <h1>Juego del Ahorcado</h1>
+                <p id="game-status" class="lead"></p>
+            </div>
+            
+            <div class="hangman-drawing"> 
+                <div class="post"></div>
+                <div class="top-bar"></div>
+                <div class="noose"></div>
+                <div class="head hidden"></div>
+                <div class="body hidden"></div>
+                <div class="left-arm hidden"></div>
+                <div class="right-arm hidden"></div>
+                <div class="left-leg hidden"></div>
+                <div class="right-leg hidden"></div>
+            </div> <!--<div class="hangman-drawing">: Contenedor del dibujo del ahorcado.
+                <div> cada uno representa una parte del ahorcado (poste, cabeza, cuerpo, etc.).
+                .hidden: Oculta cada parte hasta que se necesite.-->
+            
+            <div class="word-container" id="word-container"></div>
+            
+            <div class="keyboard">
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-outline-primary" data-letter="Q">Q</button>
+                        <button class="btn btn-outline-primary" data-letter="W">W</button>
+                        <button class="btn btn-outline-primary" data-letter="E">E</button>
+                        <button class="btn btn-outline-primary" data-letter="R">R</button>
+                        <button class="btn btn-outline-primary" data-letter="T">T</button>
+                        <button class="btn btn-outline-primary" data-letter="Y">Y</button>
+                        <button class="btn btn-outline-primary" data-letter="U">U</button>
+                        <button class="btn btn-outline-primary" data-letter="I">I</button>
+                        <button class="btn btn-outline-primary" data-letter="O">O</button>
+                        <button class="btn btn-outline-primary" data-letter="P">P</button>
+                    </div> <!--<div class="keyboard">: Contiene los botones de las letras.
+                        <button class="btn btn-outline-primary" data-letter="Q">Q</button>: Cada botón representa una letra y tiene un atributo data-letter-->
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-outline-primary" data-letter="A">A</button>
+                        <button class="btn btn-outline-primary" data-letter="S">S</button>
+                        <button class="btn btn-outline-primary" data-letter="D">D</button>
+                        <button class="btn btn-outline-primary" data-letter="F">F</button>
+                        <button class="btn btn-outline-primary" data-letter="G">G</button>
+                        <button class="btn btn-outline-primary" data-letter="H">H</button>
+                        <button class="btn btn-outline-primary" data-letter="J">J</button>
+                        <button class="btn btn-outline-primary" data-letter="K">K</button>
+                        <button class="btn btn-outline-primary" data-letter="L">L</button>
+                        <button class="btn btn-outline-primary" data-letter="Ñ">Ñ</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-outline-primary" data-letter="Z">Z</button>
+                        <button class="btn btn-outline-primary" data-letter="X">X</button>
+                        <button class="btn btn-outline-primary" data-letter="C">C</button>
+                        <button class="btn btn-outline-primary" data-letter="V">V</button>
+                        <button class="btn btn-outline-primary" data-letter="B">B</button>
+                        <button class="btn btn-outline-primary" data-letter="N">N</button>
+                        <button class="btn btn-outline-primary" data-letter="M">M</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button id="new-game" class="btn btn-primary">Nueva Partida</button> <!--Botón para nueva partida-->
+                <button id="theme-toggle" class="btn btn-secondary ms-2">Modo Oscuro</button> <!--Botón alterna entre el modo claro y oscuro-->
+                <button id="sound-toggle" class="btn btn-info ms-2"><i class="fas fa-volume-up"></i></button> <!--Botón que activa y desactiva sonido-->
+            </div>
+            
+            <div class="text-center mt-4 game-options">
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="difficulty">Dificultad:</label>
+                            <select id="difficulty" class="form-select"> <!--menú paar  seleccionar la dificultad-->
+                                <option value="easy">Fácil</option>
+                                <option value="medium" selected>Medio</option>
+                                <option value="hard">Difícil</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="category">Categoría:</label>
+                            <select id="category" class="form-select">
+                                <option value="general" selected>General</option>
+                                <option value="animals">Animales</option>
+                                <option value="fruits">Frutas</option>
+                                <option value="countries">Países</option>
+                                <option value="api">Palabra Aleatoria (API)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p>Errores: <span id="errors">0</span>/6</p>
+                <p id="hint-text" class="text-muted fst-italic d-none">Pista: <span id="hint-content"></span></p>
+            </div> <!--<p id="errors">0</span>/6</p>: Muestra la cantidad de intentos fallidos.
+            <p id="hint-text">: Muestra una pista cuando está disponible.-->
+
+            <!-- Botón para mostrar tabla de puntuaciones -->
+            <div class="text-center mt-4">
+                <button id="show-scores" class="btn btn-outline-secondary">
+                    <i class="fas fa-trophy"></i> Ver Puntuaciones
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de puntuaciones -->
+    <div class="modal fade" id="scores-modal" tabindex="-1" aria-labelledby="scores-modal-label" aria-hidden="true"> <!--Muestra si ganaste o perdiste-->
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scores-modal-label">Tabla de Puntuaciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Puntos</th>
+                                <th>Dificultad</th>
+                                <th>Categoría</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scores-table-body">
+                            <!-- Aquí se cargarán las puntuaciones -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-danger" id="clear-scores">Borrar Puntuaciones</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de victoria/derrota -->
+    <div class="modal fade" id="result-modal" tabindex="-1" aria-labelledby="result-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="result-modal-label">¡Resultado!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="result-animation" class="my-4">
+                        <!-- Animación se insertará aquí -->
+                    </div>
+                    <h3 id="result-message" class="mb-3"></h3>
+                    <p id="result-details"></p>
+                    <div id="result-points" class="text-center my-3">
+                        <h4>¡Has ganado <span class="badge bg-success">0</span> puntos!</h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="play-again">Jugar de nuevo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="sound-correct" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio> <!--Carga los efectos  de sonido-->
+    <audio id="sound-wrong" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="https://www.soundjay.com/buttons/sounds/button-21.mp3" preload="auto"></audio>
+    <audio id="sound-lose" src="https://www.soundjay.com/buttons/sounds/button-37.mp3" preload="auto"></audio>
+    <audio id="sound-click" src="https://www.soundjay.com/buttons/sounds/button-35.mp3" preload="auto"></audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script> <!--<script>: Carga Bootstrap y el script del juego.-->
+</body>
+</html>

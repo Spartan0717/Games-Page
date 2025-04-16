@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorama Galáctico</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .home-button {
+position: absolute;
+top: 10px;
+left: 10px;
+width: 50px;  /* Ajusta el tamaño del botón */
+height: 50px;
+z-index: 10;  /* Asegura que esté por encima de otros elementos */
+}
+
+.home-button img {
+width: 100%;
+height: auto;
+border-radius: 50%; /* Hace que el botón tenga bordes redondeados */
+box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+transition: transform 0.2s ease-in-out;
+}
+
+.home-button img:hover {
+transform: scale(1.1); /* Efecto al pasar el mouse */
+}
+
+</style>
+</head>
+<body>
+<!--Boton de regreso-->
+<a href="../../index.html" class="home-button">
+<img src="./play.png" alt="Inicio">
+</a>
+    <header>
+        <h1>MEMORAMA GALÁCTICO</h1>
+        <p class="subtitle">Descubre los pares de galaxias en el menor número de intentos</p>
+    </header>
+
+    <div class="level-info">
+        <div class="level-badge">Nivel <span id="current-level">1</span></div>
+        <div>XP: <span id="current-xp">0</span>/<span id="needed-xp">100</span></div>
+    </div>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="xp-progress"></div>
+    </div>
+
+    <div class="game-modes">
+        <button id="normal-mode-btn" class="mode-btn active">Modo Normal</button>
+        <button id="timed-mode-btn" class="mode-btn">Contrarreloj</button>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-label">Intentos</div>
+            <div class="stat-value" id="moves">0</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Aciertos</div>
+            <div class="stat-value" id="matches">0</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Tiempo</div>
+            <div class="stat-value" id="time">00:00</div>
+        </div>
+    </div>
+
+    <div class="countdown-text" id="countdown">60</div>
+    <div class="time-bar-container" id="time-bar-container">
+        <div class="time-bar" id="time-bar"></div>
+    </div>
+
+    <div class="game-container">
+        <div class="memory-game" id="memory-game">
+            <!-- Cards will be added here by JavaScript -->
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="restart-btn">Reiniciar Juego</button>
+        <select class="difficulty-select" id="difficulty">
+            <option value="easy">Fácil (4x3)</option>
+            <option value="medium" selected>Medio (4x4)</option>
+            <option value="hard">Difícil (5x4)</option>
+        </select>
+        <button id="sound-toggle-btn">
+            <span id="sound-icon">🔊</span>
+        </button>
+    </div>
+
+    <div class="modal" id="win-modal">
+        <div class="modal-content">
+            <h2>¡Felicidades!</h2>
+            <p>Has completado el memorama galáctico.</p>
+            <div class="score-info">
+                Puntuación: <span class="score-value" id="final-score">0</span>
+            </div>
+            <div class="stars" id="stars">★★★</div>
+            <p>Experiencia ganada: <span id="xp-gained">0</span> XP</p>
+            <button id="play-again-btn">Jugar de nuevo</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="time-up-modal">
+        <div class="modal-content">
+            <h2>¡Tiempo Agotado!</h2>
+            <p>No has podido completar el desafío a tiempo.</p>
+            <div class="score-info">
+                Pares encontrados: <span id="pairs-found">0</span>/<span id="total-pairs-timed">0</span>
+            </div>
+            <p>Experiencia ganada: <span id="xp-gained-timed">0</span> XP</p>
+            <button id="try-again-btn">Intentar de nuevo</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- Audio elements -->
+<audio id="flip-sound" src="https://assets.mixkit.co/active_storage/sfx/2073/2073-preview.mp3" preload="auto"></audio>
+<audio id="match-sound" src="https://assets.mixkit.co/active_storage/sfx/1236/1236-preview.mp3" preload="auto"></audio>
+<audio id="success-sound" src="https://assets.mixkit.co/active_storage/sfx/1167/1167-preview.mp3" preload="auto"></audio>
+<audio id="fail-sound" src="https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3" preload="auto"></audio>
+<audio id="level-up-sound" src="https://assets.mixkit.co/active_storage/sfx/1997/1997-preview.mp3" preload="auto"></audio>
+<audio id="time-warning-sound" src="https://assets.mixkit.co/active_storage/sfx/254/254-preview.mp3" preload="auto"></audio>
+
+</body>
+</html>

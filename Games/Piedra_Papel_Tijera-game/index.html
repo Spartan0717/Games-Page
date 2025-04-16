@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Piedra, Papel o Tijera</title>
+    <link rel="icon" href="./images/myicon.ico" type="image/png">
+    <style>
+        .home-button {
+position: absolute;
+top: 10px;
+left: 10px;
+width: 50px;  /* Ajusta el tamaño del botón */
+height: 50px;
+z-index: 10;  /* Asegura que esté por encima de otros elementos */
+}
+
+.home-button img {
+width: 100%;
+height: auto;
+border-radius: 50%; /* Hace que el botón tenga bordes redondeados */
+box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+transition: transform 0.2s ease-in-out;
+}
+
+.home-button img:hover {
+transform: scale(1.1); /* Efecto al pasar el mouse */
+}
+
+</style>
+</head>
+<body>
+<!--Boton de regreso-->
+<a href="../../index.html" class="home-button">
+<img src="./play.png" alt="Inicio">
+</a>
+
+    <div class="video-container">
+        <video autoplay muted loop class="video-background">
+          <source src="./images/myback.mp4" type="video/mp4" />
+          Tu navegador no soporta videos en HTML5.
+        </video>
+      </div>
+
+    <section class="container">
+        <h1>"Piedra, Papel o Tijera"</h1>
+
+        <!-- Result display section -->
+        <div class="result_field">
+            <!-- Container for user and BOT result images -->
+            <div class="result_images">
+                <span class="user_result">
+                    <img src="./images/paper.png" alt="Elección del usuario" />
+                </span>
+                <span class="bot_result">
+                    <img src="./images/paper.png" alt="Elección de la computadora" />
+                </span>
+            </div>
+            <!-- Display the game result message -->
+            <div class="result">¡Vamos a jugar!</div>
+        </div>
+
+        <!-- Options for user to choose from -->
+        <div class="option_images">
+            <span class="option_image">
+                <img src="./images/rock.png" alt="Piedra" />
+                <p>Piedra</p>
+            </span>
+            <span class="option_image">
+                <img src="./images/paper.png" alt="Papel" />
+                <p>Papel</p>
+            </span>
+            <span class="option_image">
+                <img src="./images/scissors.png" alt="Tijera" />
+                <p>Tijera</p>
+            </span>
+        </div>
+
+        <div class="scoreboard">
+            <div id="player1-label">Jugador: <span id="player-score">0</span></div>
+            <div id="player2-label">Computadora: <span id="computer-score">0</span></div>
+        </div>
+        
+        <div class="game-status">Ronda <span id="current-round">1</span> de <span id="total-rounds">5</span></div>
+        <div class="game-mode">Dificultad: <span id="difficulty-level">Normal</span></div>
+        
+        <div class="buttons">
+            <button class="reset-btn">Reiniciar juego</button>
+            <button class="settings-btn">Configuración</button>
+            <button class="highscore-btn">Mejores Puntuaciones</button>
+            <button class="help-btn">Ayuda</button>
+        </div>
+
+        <button class="sound-toggle" id="sound-toggle">🔊</button>
+    </section>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Configuración</h2>
+            <div class="form-group" id="difficulty-container">
+                <label for="difficulty">Dificultad:</label>
+                <select id="difficulty">
+                    <option value="easy">Fácil</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Difícil</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rounds">Mejor de X rondas:</label>
+                <select id="rounds">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                    <option value="5" selected>5</option>
+                    <option value="7">7</option>
+                    <option value="9">9</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="player-name">Nombre del Jugador:</label>
+                <input type="text" id="player-name" value="Jugador">
+            </div>
+            <div class="modal-buttons">
+                <button id="save-settings">Guardar</button>
+                <button id="close-settings">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- High Scores Modal -->
+    <div class="modal" id="highscores-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Mejores Puntuaciones</h2>
+            <table class="high-scores-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Rondas</th>
+                        <th>Puntuación</th>
+                        <th>Dificultad</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="highscores-body">
+                    <!-- High scores will be populated here -->
+                </tbody>
+            </table>
+            <div class="modal-buttons">
+                <button id="clear-highscores">Borrar Récords</button>
+                <button id="close-highscores">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal with Rules and Tutorial -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Ayuda del Juego</h2>
+            
+            <div class="tab-container">
+                <div class="tab active" data-tab="rules">Reglas</div>
+                <div class="tab" data-tab="tutorial">Tutorial</div>
+            </div>
+            
+            <!-- Rules Tab Content -->
+            <div class="tab-content active" id="rules-content">
+                <div class="rule-box">
+                    <h3>Reglas Básicas</h3>
+                    <ul class="rules-list">
+                        <li><strong>Piedra</strong> aplasta a <strong>Tijera</strong></li>
+                        <li><strong>Tijera</strong> corta a <strong>Papel</strong></li>
+                        <li><strong>Papel</strong> envuelve a <strong>Piedra</strong></li>
+                    </ul>
+                </div>
+                
+                <div class="tutorial-images">
+                    <div class="tutorial-image">
+                        <img src="./images/rock.png" alt="Piedra">
+                        <p>Piedra</p>
+                    </div>
+                    <div class="tutorial-image">
+                        <img src="./images/paper.png" alt="Papel">
+                        <p>Papel</p>
+                    </div>
+                    <div class="tutorial-image">
+                        <img src="./images/scissors.png" alt="Tijera">
+                        <p>Tijera</p>
+                    </div>
+                </div>
+                
+                <h3 id="difficulty-title">Niveles de Dificultad</h3>
+                <ul class="rules-list">
+                    <li><strong>Fácil:</strong> La computadora elige al azar.</li>
+                    <li><strong>Normal:</strong> La computadora a veces analiza tus movimientos.</li>
+                    <li><strong>Difícil:</strong> La computadora aprende de tus patrones y busca contrarrestar tus elecciones.</li>
+                </ul>
+                
+                <h3 id="scoring-title">Sistema de Puntuación</h3>
+                <p>El juego se basa en un sistema de "mejor de X rondas". El primer jugador que gane más de la mitad de las rondas (por ejemplo, 3 de 5) gana el juego.</p>
+            </div>
+            
+            <!-- Tutorial Tab Content -->
+            <div class="tab-content" id="tutorial-content">
+                <div class="tutorial-step">
+                    <h3>Paso 1: Configurar el Juego</h3>
+                    <p>Antes de empezar, puedes personalizar tu experiencia:</p>
+                    <ul class="rules-list">
+                        <li>Haz clic en <strong>Configuración</strong> para ajustar la dificultad y número de rondas.</li>
+                        <li>Puedes cambiar tu nombre de jugador.</li>
+                    </ul>
+                </div>
+                
+                <div class="tutorial-step">
+                    <h3>Paso 2: Cómo Jugar</h3>
+                    <p>Para jugar contra la computadora:</p>
+                    <ul class="rules-list">
+                        <li>Selecciona una de las tres opciones: Piedra, Papel o Tijera.</li>
+                        <li>¡La computadora hará su elección y se determinará el ganador!</li>
+                    </ul>
+                </div>
+                
+                <div class="tutorial-step">
+                    <h3>Paso 3: Ganar el Juego</h3>
+                    <p>El primero en ganar la mayoría de las rondas será el ganador del juego. Por ejemplo, en una partida a 5 rondas, debes ganar 3 rondas para ganar el juego.</p>
+                </div>
+                
+                <div class="tutorial-step">
+                    <h3>Consejos para Ganar</h3>
+                    <ul class="rules-list">
+                        <li>Observa los patrones de la computadora y trata de anticipar su próxima jugada.</li>
+                        <li>Varía tus elecciones para ser menos predecible.</li>
+                        <li>En modo difícil, ten cuidado con repetir patrones, ya que la computadora aprenderá de ellos.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button id="close-help">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
